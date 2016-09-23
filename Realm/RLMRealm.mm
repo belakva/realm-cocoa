@@ -238,7 +238,8 @@ REALM_NOINLINE void RLMRealmTranslateException(NSError **error) {
 
         // try to reuse existing realm first
         if (config.cache || dynamic) {
-            if (RLMRealm *realm = RLMGetThreadLocalCachedRealmForPath(config.path)) {
+            if (RLMRealm *realm = RLMGetThreadLocalCachedRealmForPath(config.path)
+                && realm->_realm->thread_id() == std::this_thread::get_id()) {
                 auto const& old_config = realm->_realm->config();
                 if (old_config.read_only() != config.read_only()) {
                     @throw RLMException(@"Realm at path '%s' already opened with different read permissions", config.path.c_str());
